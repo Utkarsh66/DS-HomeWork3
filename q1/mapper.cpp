@@ -7,12 +7,21 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
+    // --------------------------------------------------
+    // Validate command-line arguments
+    // --------------------------------------------------
+
     if (argc < 2) {
         cerr << "Usage: mapper <B_file>\n";
         return 1;
     }
 
     string bFileName = argv[1];
+
+
+    // --------------------------------------------------
+    // Read matrix B
+    // --------------------------------------------------
 
     ifstream bFile(bFileName);
 
@@ -24,6 +33,7 @@ int main(int argc, char* argv[]) {
 
     int n, p;
 
+    // B has dimensions n x p
     if (!(bFile >> n >> p) || n <= 0 || p <= 0) {
         cerr << "Error: Invalid dimensions for matrix B\n";
         return 1;
@@ -33,6 +43,7 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < p; j++) {
+
             if (!(bFile >> B[i][j])) {
                 cerr << "Error: Invalid data in B.txt\n";
                 return 1;
@@ -44,13 +55,13 @@ int main(int argc, char* argv[]) {
 
 
     // --------------------------------------------------
-    // Step 2: Read rows of A from standard input
+    // Read rows of A from standard input
     // --------------------------------------------------
 
     int rowIndex;
 
     /*
-       Each input line looks like:
+       Input format:
 
        rowIndex  A[row][0]  A[row][1] ... A[row][n-1]
 
@@ -63,10 +74,8 @@ int main(int argc, char* argv[]) {
 
     while (cin >> rowIndex) {
 
-        // Store one row of A
         vector<int> Arow(n);
 
-        // Read the n values of this row
         for (int k = 0; k < n; k++) {
 
             if (!(cin >> Arow[k])) {
@@ -77,20 +86,19 @@ int main(int argc, char* argv[]) {
 
 
         // --------------------------------------------------
-        // Step 3: Calculate the corresponding row of C
+        // Calculate corresponding row of C
         // --------------------------------------------------
 
-        // C has p columns
         vector<int> CRow(p, 0);
 
         /*
             Row-Row multiplication:
 
             C[rowIndex] =
-                  A[rowIndex][0] * B[0]
-                + A[rowIndex][1] * B[1]
-                + ...
-                + A[rowIndex][n-1] * B[n-1]
+                A[rowIndex][0] * B[0]
+              + A[rowIndex][1] * B[1]
+              + ...
+              + A[rowIndex][n-1] * B[n-1]
         */
 
         for (int k = 0; k < n; k++) {
@@ -103,11 +111,11 @@ int main(int argc, char* argv[]) {
 
 
         // --------------------------------------------------
-        // Step 4: Emit MapReduce key-value pair
+        // Emit key-value pair
         // --------------------------------------------------
 
         // Key   = row index
-        // Value = complete row of C
+        // Value = complete C row
 
         cout << rowIndex;
 
