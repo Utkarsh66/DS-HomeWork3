@@ -7,10 +7,6 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    // --------------------------------------------------
-    // Validate command-line arguments
-    // --------------------------------------------------
-
     if (argc < 2) {
         cerr << "Usage: mapper <B_file>\n";
         return 1;
@@ -18,11 +14,7 @@ int main(int argc, char* argv[]) {
 
     string bFileName = argv[1];
 
-
-    // --------------------------------------------------
-    // Read matrix B
-    // --------------------------------------------------
-
+    // Read B
     ifstream bFile(bFileName);
 
     if (!bFile.is_open()) {
@@ -33,19 +25,18 @@ int main(int argc, char* argv[]) {
 
     int n, p;
 
-    // B has dimensions n x p
     if (!(bFile >> n >> p) || n <= 0 || p <= 0) {
-        cerr << "Error: Invalid dimensions for matrix B\n";
+        cerr << "Error: Invalid dimensions for B\n";
         return 1;
     }
 
-    vector<vector<int>> B(n, vector<int>(p));
+    vector<vector<long long>> B(n, vector<long long>(p));
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < p; j++) {
 
             if (!(bFile >> B[i][j])) {
-                cerr << "Error: Invalid data in B.txt\n";
+                cerr << "Error: Invalid data in B\n";
                 return 1;
             }
         }
@@ -54,27 +45,12 @@ int main(int argc, char* argv[]) {
     bFile.close();
 
 
-    // --------------------------------------------------
-    // Read rows of A from standard input
-    // --------------------------------------------------
-
+    // Process rows of A
     int rowIndex;
-
-    /*
-       Input format:
-
-       rowIndex  A[row][0]  A[row][1] ... A[row][n-1]
-
-       Example:
-
-       0 1 2
-       1 0 3
-       2 -1 4
-    */
 
     while (cin >> rowIndex) {
 
-        vector<int> Arow(n);
+        vector<long long> Arow(n);
 
         for (int k = 0; k < n; k++) {
 
@@ -85,21 +61,8 @@ int main(int argc, char* argv[]) {
         }
 
 
-        // --------------------------------------------------
-        // Calculate corresponding row of C
-        // --------------------------------------------------
-
-        vector<int> CRow(p, 0);
-
-        /*
-            Row-Row multiplication:
-
-            C[rowIndex] =
-                A[rowIndex][0] * B[0]
-              + A[rowIndex][1] * B[1]
-              + ...
-              + A[rowIndex][n-1] * B[n-1]
-        */
+        // Calculate C row
+        vector<long long> CRow(p, 0);
 
         for (int k = 0; k < n; k++) {
 
@@ -110,17 +73,13 @@ int main(int argc, char* argv[]) {
         }
 
 
-        // --------------------------------------------------
-        // Emit key-value pair
-        // --------------------------------------------------
-
-        // Key   = row index
-        // Value = complete C row
+        // Emit:
+        // rowIndex value1 value2 ... valueP
 
         cout << rowIndex;
 
-        for (int j = 0; j < p; j++) {
-            cout << " " << CRow[j];
+        for (long long value : CRow) {
+            cout << " " << value;
         }
 
         cout << "\n";
