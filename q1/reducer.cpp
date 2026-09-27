@@ -1,31 +1,34 @@
 #include <iostream>
 #include <sstream>
-#include <vector>
 #include <string>
 
 using namespace std;
 
 int main() {
-
     string line;
 
     while (getline(cin, line)) {
-
         if (line.empty()) {
             continue;
         }
 
         stringstream ss(line);
 
+        // Read and discard the row index
         int rowIndex;
         ss >> rowIndex;
 
-        cout << rowIndex;
-
+        // Print only the matrix values
         long long value;
+        bool firstValue = true;
 
         while (ss >> value) {
-            cout << " " << value;
+            if (!firstValue) {
+                cout << " ";
+            }
+
+            cout << value;
+            firstValue = false;
         }
 
         cout << "\n";

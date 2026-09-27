@@ -96,7 +96,13 @@ fi
 echo ""
 echo "Broadcasting B.txt to all Mapper nodes..."
 
-sbcast "$B_FILE" /tmp/B.txt
+B_LOCAL="/tmp/B_${SLURM_JOB_ID}.txt"
+
+sbcast "$B_FILE" "$B_LOCAL"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to broadcast B.txt"
+    exit 1
+fi
 
 if [ $? -ne 0 ]; then
     echo "ERROR: Failed to broadcast B.txt"
@@ -127,12 +133,8 @@ echo "Running Mapper..."
 
 srun --ntasks=$SLURM_NTASKS bash -c '
     TID=$(printf "%02d" $SLURM_PROCID)
-
     echo "Mapper $SLURM_PROCID running on $(hostname)" >&2
-
-    ./mapper /tmp/B.txt \
-        < "chunk_${TID}" \
-        > "map_${TID}.out"
+    ./mapper "'"$B_LOCAL"'" < "chunk_${TID}" > "map_${TID}.out"
 '
 
 
@@ -220,11 +222,8 @@ cat "$OUTPUT_FILE"
 # Cleanup temporary files
 # ------------------------------------------------------------
 
-rm -f chunk_*
-rm -f map_*.out
-rm -f shuffle1.out
-rm -f combined.out
-rm -f shuffle2.out
+rm -f chunk_* map_*.out shuffle1.out combined.out shuffle2.out
+rm -f "$B_LOCAL"
 
 echo ""
 echo "Temporary files cleaned up."
